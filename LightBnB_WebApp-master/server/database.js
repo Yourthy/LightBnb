@@ -189,8 +189,6 @@ const getAllProperties = function(options, limit = 10) {
   .then(res => res.rows);
 }
 
-
-
 exports.getAllProperties = getAllProperties;
 
 
@@ -203,10 +201,16 @@ exports.getAllProperties = getAllProperties;
  * @return {Promise<{}>} A promise to the property.
  */
 const addProperty = function(property) {
-  const propertyId = Object.keys(properties).length + 1;
-  property.id = propertyId;
-  properties[propertyId] = property;
-  return Promise.resolve(property);
+  pool.query(`
+  INSTER INTO properties(owner_id, title, description, thumbnail_photo_url, cover_photo_url, cost_per_night, parking_spaces, number_of_bathrooms, number_of_bedrooms, country, street, province, post_code)
+  VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+  RETURNING *;
+  `, [property.owner_id, property.title, property.decription, property.thumbnail, property.thumbnail_photo, property.cover_photo_url, property.cost_per_night, property.parking_spaces, property.number_of_bathrooms, property.number_of_bedrooms, property.country, property.street, property.province, property.post_code ])
+.then(res=>{
+  res.rows[0];
+}).catch((error)=>{
+  return null;
+})
 }
 exports.addProperty = addProperty;
 
